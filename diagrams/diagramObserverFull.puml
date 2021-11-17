@@ -1,0 +1,93 @@
+@startuml
+interface Comparable
+
+class SimpleLogger {
+    {static} - instance : SimpleLogger
+    - SimpleLogger()
+    {static} + getInstance() : SimpleLogger
+    + logError(String)
+    + logTrace(String)
+}
+
+class NewsAgency {
+    - articles : PriorityQueue<Article>
+    + getLatestArticle() : Article
+    + hasMoreArticles() : boolean
+    + publishArticle() : void
+    + readFromFile(String) : void
+}
+
+class ArticleFactory {
+    {static} + createFromString(String) : Article
+}
+
+class Article {
+    - <<get>> title : String
+    - <<get>> description : String
+    - <<get>> publishingDateTime : LocalDateTime
+    - <<get>> url : String
+    - <<get>> category : NewsCategory
+}
+
+enum NewsCategory {
+    ECONOMY,
+    LIFESTYLE,
+    POLITICS,
+    SPORTS,
+    TECH
+}
+
+NewsAgency *-- Article
+NewsAgency -- ArticleFactory : uses >
+
+ArticleFactory -- Article : creates >
+Comparable <|-- Article
+Article *-- NewsCategory
+
+
+interface NewsPullSubject {
+    + registerObserver(NewsPullObserver) : void
+    + unregisterObserver(NewsPullObserver) : void
+}
+
+interface NewsPullObserver {
+    + update(NewsPullSubject) : void
+}
+
+class NewsPortal {
+    - observers : NewsPullObserver
+    + publishArticle() : void
+}
+
+NewsAgency <|-- NewsPortal
+NewsPullSubject <|-- NewsPortal
+NewsPullObserver <|-- Nerd
+NewsPullObserver <|-- SoccerFan
+NewsPullObserver <|-- StockInvestor
+NewsPortal *-- NewsPullObserver
+NewsPortal -- NewsPullObserver : notifies >
+NewsPortal -- NewsPullObserver : checks <'/
+
+interface NewsPushSubject {
+    + registerObserver(NewsPushObserver) : void
+    + unregisterObserver(NewsPushObserver) : void
+}
+
+interface NewsPushObserver {
+    + update(Article) : void
+}
+
+class NewsMailOrder {
+    - observers : NewsPushObserver
+    + publishArticle() : void
+}
+
+NewsAgency <|-- NewsMailOrder
+NewsPushSubject <|-- NewsMailOrder
+NewsPushObserver <|-- CarLover
+NewsPushObserver <|-- OctoberSubscriber
+NewsPushObserver <|-- YogaMom
+NewsMailOrder *-- NewsPushObserver
+NewsMailOrder -- NewsPushObserver : notifies >
+NewsPushObserver -- Article : checks >
+@enduml
